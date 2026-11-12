@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="筋トレログ">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>筋トレログ</title>
+<style>
+:root{
+  --bg:#0b0b0d; --card:#17171b; --card2:#202026; --line:#2c2c33;
+  --text:#f2f2f4; --sub:#9b9ba5; --accent:#c8f03c; --accent-ink:#121212;
+  --danger:#ff5a5f; --radius:14px;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+  font-size:16px;line-height:1.55;padding-top:var(--safe-t);padding-bottom:calc(76px + var(--safe-b));}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+header.top{position:sticky;top:0;z-index:5;background:rgba(11,11,13,.92);backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);padding:12px 16px 10px;border-bottom:1px solid var(--line)}
+header.top h1{margin:0;font-size:20px;letter-spacing:.04em;font-weight:800}
+header.top h1 span{color:var(--accent)}
+main{padding:14px 16px 24px;max-width:640px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.muted{color:var(--sub);font-size:14px}
+.small{font-size:13px}
+.row{display:flex;align-items:center;gap:8px}
+.between{justify-content:space-between}
+.btn{border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:11px 14px;font-weight:600}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--danger);background:transparent;border-color:#4a2a2c}
+.btn.block{width:100%;display:block;text-align:center}
+.btn.sm{padding:6px 10px;font-size:14px;border-radius:10px}
+.icon-btn{border:none;background:transparent;color:var(--sub);font-size:20px;padding:4px 8px;line-height:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.datebar{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.datebar input[type=date]{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;font-weight:700}
+.badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--sub);white-space:nowrap}
+.badge.m{border-color:#3d4a16;color:var(--accent)}
+.entry-title{font-weight:800;font-size:17px;background:none;border:none;padding:0;text-align:left}
+.entry-title::after{content:" ⓘ";color:var(--sub);font-weight:400;font-size:14px}
+.prev{font-size:13px;color:var(--sub);margin:4px 0 8px}
+.prev b{color:var(--accent);font-weight:600}
+table.sets{width:100%;border-collapse:collapse}
+table.sets th{font-size:12px;color:var(--sub);font-weight:500;text-align:left;padding:2px 4px}
+table.sets td{padding:4px}
+table.sets td.no{width:28px;color:var(--sub);font-weight:700;text-align:center}
+table.sets td.del{width:36px;text-align:right}
+.num{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:16px;text-align:center}
+.num:focus,textarea:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--accent)}
+textarea,input[type=text],select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:16px}
+textarea{min-height:72px;resize:vertical}
+.empty{text-align:center;padding:26px 10px}
+.empty .big{font-size:40px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:600}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.list-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:12px;margin-bottom:8px}
+.list-item .name{flex:1;font-weight:600}
+.part-head{margin:16px 0 8px;font-weight:800;font-size:15px;color:var(--sub)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;background:rgba(17,17,20,.96);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
+nav.tabs button{flex:1;border:none;background:none;padding:9px 0 8px;color:var(--sub);font-size:11px;font-weight:600}
+nav.tabs button .ic{display:block;font-size:21px;line-height:1.2;filter:grayscale(1);opacity:.7}
+nav.tabs button.on{color:var(--accent)}
+nav.tabs button.on .ic{filter:none;opacity:1}
+/* bottom sheet */
+#sheetWrap{position:fixed;inset:0;z-index:20;display:none}
+#sheetWrap.open{display:block}
+#sheetBg{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+#sheet{position:absolute;left:0;right:0;bottom:0;max-height:88vh;overflow-y:auto;background:var(--card);
+  border-radius:20px 20px 0 0;border-top:1px solid var(--line);padding:8px 16px calc(20px + var(--safe-b));max-width:640px;margin:0 auto;
+  -webkit-overflow-scrolling:touch}
+#sheet .grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 10px}
+#sheet h2{margin:0 0 4px;font-size:20px}
+#sheet h3{margin:16px 0 6px;font-size:15px;color:var(--accent)}
+#sheet ol,#sheet ul{margin:0;padding-left:1.3em}
+#sheet li{margin-bottom:4px}
+.sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.yt{display:block;text-align:center;text-decoration:none;background:#2a1213;border:1px solid #5a2326;color:#ff8a8d;border-radius:12px;padding:11px;font-weight:700;margin-top:16px}
+.note{background:var(--card2);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--sub);margin-top:12px}
+.check-item{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line)}
+.check-item input{width:20px;height:20px;accent-color:var(--accent)}
+/* calendar */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-head b{font-size:17px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal .wd{font-size:12px;color:var(--sub);padding:2px 0}
+.cal .wd.sun{color:#ff7b7f}.cal .wd.sat{color:#7bb4ff}
+.cal button{aspect-ratio:1/1;border:none;border-radius:10px;background:transparent;font-size:14px;padding:0;position:relative}
+.cal button.done{background:var(--accent);color:var(--accent-ink);font-weight:800}
+.cal button.today{outline:2px solid var(--sub);outline-offset:-2px}
+.cal button.sel{outline:2px solid #fff;outline-offset:-2px}
+.stat{display:flex;gap:10px;margin-top:12px}
+.stat div{flex:1;background:var(--card2);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:22px;color:var(--accent)}
+.hist-item{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px}
+.hist-item .d{font-weight:800}
+#toast{position:fixed;left:50%;bottom:calc(90px + var(--safe-b));transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);
+  padding:9px 16px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;white-space:nowrap}
+#toast.show{opacity:1}
+.saved{font-size:12px;color:var(--sub);text-align:center;margin-top:6px}
+.sec-title{font-size:15px;font-weight:800;margin:0 0 8px}
+</style>
+</head>
+<body>
+<header class="top"><h1>筋トレ<span>ログ</span></h1></header>
+<main id="main"></main>
+
+<nav class="tabs">
+  <button data-act="tab" data-tab="record"><span class="ic">📝</span>記録</button>
+  <button data-act="tab" data-tab="exercises"><span class="ic">📖</span>種目・やり方</button>
+  <button data-act="tab" data-tab="history"><span class="ic">📅</span>履歴</button>
+  <button data-act="tab" data-tab="settings"><span class="ic">⚙️</span>設定</button>
+</nav>
+
+<div id="sheetWrap"><div id="sheetBg" data-act="closeSheet"></div><div id="sheet"></div></div>
+<div id="toast"></div>
+<input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+
+<script>
+/* ===================== 種目データ ===================== */
+const PARTS = [
+  {id:'glute',    name:'お尻',   emoji:'🍑'},
+  {id:'adductor', name:'内転筋', emoji:'🦵'},
+  {id:'ham',      name:'もも裏', emoji:'🦵'},
+  {id:'chest',    name:'胸',     emoji:'💪'},
+  {id:'back',     name:'背中',   emoji:'🔙'},
+  {id:'abs',      name:'お腹',   emoji:'🔥'},
+];
+// type: bw=自重 / machine=マシン   unit: reps=回数 / sec=秒数
+const EXERCISES = [
+ // ---- お尻 ----
+ {id:'hip-lift',part:'glute',type:'bw',unit:'reps',name:'ヒップリフト',
+  target:'お尻(大殿筋)、もも裏',
+  steps:['あお向けに寝て、両膝を立てる。かかとはお尻からこぶし2つ分くらい離す。','腕は体の横に置き、手のひらを床につける。','お尻をギュッとしめながら持ち上げ、肩から膝までが一直線になる所まで上げる。','上で1〜2秒止めてから、ゆっくり下ろす。'],
+  mistakes:['腰をそらしすぎる(あばら骨を下げる意識で)','勢いで上げ下げする','お尻ではなく腰の力で上げてしまう'],
+  guide:'15回 × 3セット'},
+ {id:'single-hip-lift',part:'glute',type:'bw',unit:'reps',name:'片足ヒップリフト',
+  target:'お尻(大殿筋)、もも裏',
+  steps:['ヒップリフトの姿勢になり、片方の脚をまっすぐ伸ばして浮かせる。','床についている足のかかとで床を押し、お尻を持ち上げる。','骨盤(腰の骨)が左右に傾かないように、まっすぐ上げる。','上で1秒止めて、ゆっくり下ろす。反対の脚も同じように行う。'],
+  mistakes:['骨盤が片方に傾く','腰をそらしすぎる'],
+  guide:'左右 各10回 × 3セット'},
+ {id:'donkey-kick',part:'glute',type:'bw',unit:'reps',name:'ドンキーキック',
+  target:'お尻(大殿筋)',
+  steps:['よつんばいになる。手は肩の真下、膝は脚の付け根の真下に置く。','片方の膝を90度に曲げたまま、足の裏で天井を押すように持ち上げる。','太ももが床と平行になるくらいまで上げ、お尻をしめて1秒止める。','ゆっくり戻す。反対の脚も同じように行う。'],
+  mistakes:['脚を高く上げすぎて腰がそる','体が上げた脚のほうへ傾く','反動をつける'],
+  guide:'左右 各15回 × 3セット'},
+ {id:'fire-hydrant',part:'glute',type:'bw',unit:'reps',name:'ファイヤーハイドラント',
+  target:'お尻の横(中殿筋)',
+  steps:['よつんばいになる。手は肩の真下、膝は脚の付け根の真下。','膝を曲げたまま、片脚を真横に開くように持ち上げる。','お尻の横に力が入るのを感じたら1秒止める。','ゆっくり戻す。反対の脚も同じように行う。'],
+  mistakes:['体ごと傾いてしまう(両手で床をしっかり押す)','脚を上げすぎて腰がねじれる'],
+  guide:'左右 各15回 × 3セット'},
+ {id:'clamshell',part:'glute',type:'bw',unit:'reps',name:'クラムシェル',
+  target:'お尻の横(中殿筋)',
+  steps:['横向きに寝て、膝を45度くらい曲げる。両足のかかとはそろえる。','下の腕で頭を支え、上の手は腰に置く。','かかとをつけたまま、貝が口を開くように上の膝を開く。','1秒止めて、ゆっくり閉じる。反対向きも同じように行う。'],
+  mistakes:['膝を開いたときに骨盤が後ろへ倒れる','勢いで開く'],
+  guide:'左右 各15〜20回 × 3セット'},
+ {id:'side-leg-raise',part:'glute',type:'bw',unit:'reps',name:'サイドライイング・レッグレイズ',
+  target:'お尻の横(中殿筋)',
+  steps:['横向きに寝て、下の脚は軽く曲げて体を安定させる。','上の脚はまっすぐ伸ばし、つま先は正面か少し下に向ける。','脚を少し後ろ寄り・斜め上に向かって持ち上げる。','ゆっくり下ろす。反対向きも同じように行う。'],
+  mistakes:['つま先が上を向く(ももの前に効いてしまう)','脚を前に出してしまう','高く上げすぎる'],
+  guide:'左右 各15回 × 3セット'},
+ {id:'hip-thrust-machine',part:'glute',type:'machine',unit:'reps',name:'ヒップスラストマシン',
+  target:'お尻(大殿筋)',
+  steps:['背中のパッドに、肩甲骨(背中の上の左右の骨)の下あたりを当てて座る。','ベルトやパッドを腰骨(脚の付け根の上)にセットする。','足は肩幅に開き、お尻を上げたときに膝が90度になる位置に置く。','あごを軽く引き、お尻の力で押し上げる。','上で1秒お尻をしめて、ゆっくり下ろす。'],
+  mistakes:['腰をそらして上げる','足が近すぎる(ももの前に効く)/遠すぎる(もも裏に効く)','重すぎてフォームがくずれる'],
+  guide:'10〜12回 × 3セット'},
+ {id:'abduction',part:'glute',type:'machine',unit:'reps',name:'アブダクション',
+  target:'お尻の横(中殿筋)',
+  steps:['座って、パッドが膝の外側に当たるように脚を入れる。','グリップを握り、背中を背もたれにつける。','脚を外側に開いていく。','開いた所で1秒止め、ゆっくり戻す。'],
+  mistakes:['戻すときに重りを「ガチャン」と落とす','反動で開く'],
+  guide:'15回 × 3セット',
+  tip:'上半身を少し前に倒すと、お尻により効きやすくなります。'},
+ {id:'cable-kickback',part:'glute',type:'machine',unit:'reps',name:'ケーブル・キックバック',
+  target:'お尻(大殿筋)',
+  steps:['ケーブルマシンの一番下に、足首用のベルトをつけて片方の足首に巻く。','マシンの方を向いて立ち、手でマシンをつかんで上半身を少し前に倒す。','ベルトをつけた脚を、まっすぐ後ろへ蹴り上げる。','お尻をしめて1秒止め、ゆっくり戻す。反対の脚も同じように行う。'],
+  mistakes:['腰をそらして脚を上げる','反動で蹴る','脚を上げすぎる'],
+  guide:'左右 各12〜15回 × 3セット'},
+ // ---- 内転筋 ----
+ {id:'wide-squat',part:'adductor',type:'bw',unit:'reps',name:'ワイドスクワット',
+  target:'内もも(内転筋)、お尻',
+  steps:['足を肩幅の1.5〜2倍に開き、つま先を外側(斜め45度)に向ける。','胸を張り、手は胸の前で組む。','膝をつま先と同じ方向に向けたまま、お尻を真下に下ろす。','太ももが床と平行になるくらいまで下げる。','内ももとお尻をしめながら立ち上がる。'],
+  mistakes:['膝が内側に入る','背中が丸まる','前かがみになりすぎる'],
+  guide:'15回 × 3セット'},
+ {id:'side-adduction',part:'adductor',type:'bw',unit:'reps',name:'サイドライイング・アダクション',
+  target:'内もも(内転筋)',
+  steps:['横向きに寝て、下の腕で頭を支える。','上の脚を曲げて、下の脚の前の床に足を置く。','下の脚をまっすぐ伸ばしたまま、天井に向かって持ち上げる。','1秒止めて、ゆっくり下ろす。反対向きも同じように行う。'],
+  mistakes:['反動で上げる','体が後ろへ倒れる'],
+  guide:'左右 各15回 × 3セット'},
+ {id:'adduction-machine',part:'adductor',type:'machine',unit:'reps',name:'アダクション',
+  target:'内もも(内転筋)',
+  steps:['座って、パッドが膝の内側に当たるように脚を入れる。','スタートの開き具合を、無理のない広さに合わせる。','グリップを握り、脚を内側へ閉じる。','閉じた所で1秒止め、ゆっくり開く。'],
+  mistakes:['最初に脚を開きすぎて、内ももを痛める','戻すときに重りを落とす'],
+  guide:'15回 × 3セット'},
+ // ---- もも裏 ----
+ {id:'single-rdl',part:'ham',type:'bw',unit:'reps',name:'片足ルーマニアンデッドリフト',
+  target:'もも裏(ハムストリングス)、お尻',
+  steps:['片足で立ち、立っている脚の膝は軽く曲げる。','背中をまっすぐ保ったまま、上半身を前に倒しながら、反対の脚を後ろに伸ばす。','頭からかかとまでが一直線になるイメージで、もも裏が伸びるのを感じる所まで倒す。','お尻の力で起き上がって戻る。反対の脚も同じように行う。'],
+  mistakes:['背中が丸まる','上げた脚のほうへ骨盤が開く(上げた脚のつま先は下向きに)'],
+  guide:'左右 各10回 × 3セット',
+  tip:'ぐらつくときは、壁やイスに手を添えてOKです。'},
+ {id:'hip-lift-far',part:'ham',type:'bw',unit:'reps',name:'ヒップリフト(足遠め)',
+  target:'もも裏(ハムストリングス)、お尻',
+  steps:['あお向けに寝て、ふつうのヒップリフトより足をお尻から遠くに置く。','かかとで床を押すようにして、お尻を持ち上げる。','肩から膝までが一直線になったら1秒止める。','ゆっくり下ろす。'],
+  mistakes:['腰をそらしすぎる','足をつりそうなのに続ける(つりそうなら足を少し近づける)'],
+  guide:'12回 × 3セット',
+  tip:'つま先を上げて、かかとだけを床につけると、もも裏により効きます。'},
+ {id:'lying-leg-curl',part:'ham',type:'machine',unit:'reps',name:'ライイング・レッグカール',
+  target:'もも裏(ハムストリングス)',
+  steps:['うつ伏せに寝て、パッドがかかとの少し上(アキレス腱の上)に当たるようにする。','膝がベンチの端から少し出る位置に合わせる。','グリップを握り、お尻を浮かせずに、かかとをお尻に近づける。','ゆっくり戻す。'],
+  mistakes:['お尻が浮く','反動で上げる','戻すのが速すぎる'],
+  guide:'12回 × 3セット'},
+ {id:'seated-leg-curl',part:'ham',type:'machine',unit:'reps',name:'シーテッド・レッグカール',
+  target:'もも裏(ハムストリングス)',
+  steps:['座って、膝の位置をマシンの回る軸(目印)に合わせる。','太ももの上のパッドを下ろして、脚を固定する。','足首の上のパッドを、かかとで下に押し下げる。','1秒止めて、ゆっくり戻す。'],
+  mistakes:['膝の位置が軸とずれている','腰が浮く','反動で動かす'],
+  guide:'12回 × 3セット'},
+ // ---- 胸 ----
+ {id:'knee-pushup',part:'chest',type:'bw',unit:'reps',name:'膝つき腕立て伏せ',
+  target:'胸(大胸筋)、二の腕の裏',
+  steps:['膝をついて、手を肩幅より少し広めに床につく。','膝から頭までを一直線にする。','ひじを斜め後ろ(45度くらい)に曲げながら、胸を床に近づける。','床を押して元に戻る。'],
+  mistakes:['お尻が上がる/腰が落ちる','ひじが真横に開く(肩を痛めやすい)','頭だけ下げる'],
+  guide:'10回 × 3セット'},
+ {id:'pushup',part:'chest',type:'bw',unit:'reps',name:'腕立て伏せ',
+  target:'胸(大胸筋)、二の腕の裏、お腹',
+  steps:['手を肩幅より少し広めにつき、足を後ろに伸ばしてつま先立ちになる。','頭からかかとまでを一直線にする。','ひじを斜め後ろに曲げながら、胸を床に近づける。','床を押して元に戻る。'],
+  mistakes:['お尻が上がる/腰が落ちる','ひじが真横に開く','浅くしか下ろさない'],
+  guide:'8〜10回 × 3セット',
+  tip:'1回もできないときは、膝つき腕立て伏せから始めましょう。'},
+ {id:'chest-press',part:'chest',type:'machine',unit:'reps',name:'チェストプレス',
+  target:'胸(大胸筋)、二の腕の裏',
+  steps:['イスの高さを、グリップが胸の真ん中あたりに来るように合わせる。','背中を背もたれにつけ、肩甲骨を寄せて胸を張る。','グリップを前に押し出す(ひじは伸ばしきらない)。','ゆっくり戻す。'],
+  mistakes:['肩がすくむ(肩が耳に近づく)','背中が背もたれから離れる','戻すときに重りを落とす'],
+  guide:'10〜12回 × 3セット'},
+ {id:'pec-fly',part:'chest',type:'machine',unit:'reps',name:'ペックフライ',
+  target:'胸(大胸筋)',
+  steps:['イスの高さを、グリップ(またはパッド)が肩の高さに来るように合わせる。','背中を背もたれにつけ、胸を張る。','ひじを軽く曲げたまま、大きな木を抱きしめるように胸の前で腕を閉じる。','ゆっくり開く(開きすぎない)。'],
+  mistakes:['腕を後ろに開きすぎて肩を痛める','肩がすくむ'],
+  guide:'12回 × 3セット'},
+ // ---- 背中 ----
+ {id:'back-ext',part:'back',type:'bw',unit:'reps',name:'バックエクステンション',
+  target:'背中(脊柱起立筋=背骨にそった筋肉)、お尻',
+  steps:['うつ伏せに寝て、手は頭の後ろか体の横に置く。','おへそを床から離さないまま、上半身を少しだけ持ち上げる。','1秒止めて、ゆっくり下ろす。'],
+  mistakes:['高くそりすぎて腰が痛くなる','首だけを上げる'],
+  guide:'12回 × 3セット'},
+ {id:'superman',part:'back',type:'bw',unit:'reps',name:'スーパーマン',
+  target:'背中全体、お尻',
+  steps:['うつ伏せに寝て、両手を頭の先へまっすぐ伸ばす。','両手と両脚を同時に、床から少し浮かせる。','2〜3秒キープして、ゆっくり下ろす。'],
+  mistakes:['高く上げようとして腰をそりすぎる','息を止める'],
+  guide:'10回 × 3セット'},
+ {id:'lat-pulldown',part:'back',type:'machine',unit:'reps',name:'ラットプルダウン',
+  target:'背中(広背筋=わきの下から腰に広がる筋肉)',
+  steps:['太もも用のパッドの高さを合わせ、脚を固定して座る。','バーを肩幅より広めに握る。','胸を張り、上半身を少しだけ後ろに傾ける。','ひじを下に引くイメージで、バーを鎖骨のあたりまで引き下ろす。','ゆっくり戻す。'],
+  mistakes:['腕の力だけで引く','頭の後ろに下ろす(肩を痛めやすい)','体を大きく反らして反動を使う'],
+  guide:'10〜12回 × 3セット'},
+ {id:'seated-row',part:'back',type:'machine',unit:'reps',name:'シーテッドロー',
+  target:'背中の真ん中(僧帽筋・広背筋)',
+  steps:['イスの高さを合わせ、胸のパッドに胸を当てる(または足を台に置く)。','グリップを握り、背すじを伸ばす。','ひじを後ろに引き、左右の肩甲骨を寄せる。','ゆっくり戻す。'],
+  mistakes:['背中が丸まる','上半身を大きく後ろに倒す','肩がすくむ'],
+  guide:'10〜12回 × 3セット'},
+ {id:'assisted-pullup',part:'back',type:'machine',unit:'reps',name:'アシスト懸垂マシン',
+  target:'背中(広背筋)、腕',
+  steps:['膝(マシンによっては足)を台に乗せる。','上のバーを肩幅より広めに握り、胸を張る。','ひじを下に引くようにして、あごがバーの上に来るまで体を引き上げる。','ゆっくり下ろす。'],
+  mistakes:['反動で体を引き上げる','下ろすのが速すぎる'],
+  guide:'8〜10回 × 3セット',
+  tip:'このマシンは「重さ」が大きいほど、体を持ち上げる手伝いが強くなり、楽になります。慣れたら少しずつ重さを減らしましょう。'},
+ // ---- お腹 ----
+ {id:'crunch',part:'abs',type:'bw',unit:'reps',name:'クランチ',
+  target:'お腹(腹直筋)',
+  steps:['あお向けに寝て、両膝を立てる。','手は胸の前で組むか、頭に軽く添える。','おへそをのぞきこむように背中を丸め、肩甲骨が床から浮くまで上げる。','ゆっくり戻す。'],
+  mistakes:['手で首を引っぱる','反動で起き上がりすぎる'],
+  guide:'15回 × 3セット'},
+ {id:'plank',part:'abs',type:'bw',unit:'sec',name:'プランク',
+  target:'お腹全体(体幹=体の中心の筋肉)',
+  steps:['うつ伏せから、ひじを肩の真下につく。','つま先立ちになり、頭からかかとまでを一直線にする。','お腹に力を入れたまま、息を止めずにキープする。'],
+  mistakes:['お尻が上がる/腰が落ちる','息を止める'],
+  guide:'30秒 × 3セット'},
+ {id:'side-plank',part:'abs',type:'bw',unit:'sec',name:'サイドプランク',
+  target:'わき腹(腹斜筋)',
+  steps:['横向きに寝て、ひじを肩の真下につく。','足をそろえ、腰を持ち上げて頭から足までを一直線にする。','そのままキープする。反対向きも同じように行う。'],
+  mistakes:['腰が下がる','体が前や後ろに傾く'],
+  guide:'左右 各20〜30秒 × 3セット',
+  tip:'きついときは、下の膝を床について行いましょう。'},
+ {id:'leg-raise',part:'abs',type:'bw',unit:'reps',name:'レッグレイズ',
+  target:'下腹(腹直筋の下のほう)',
+  steps:['あお向けに寝て、手はお尻の横(または下)に置く。','両脚をそろえて、天井に向かって持ち上げる。','ゆっくり、床につくギリギリまで下ろす。'],
+  mistakes:['腰がそって床から浮く(腰痛の原因)','勢いで脚を振る'],
+  guide:'10回 × 3セット',
+  tip:'腰が浮いてしまうときは、膝を曲げて行いましょう。'},
+ {id:'bicycle',part:'abs',type:'bw',unit:'reps',name:'バイシクルクランチ',
+  target:'わき腹(腹斜筋)、お腹',
+  steps:['あお向けに寝て、手は頭に軽く添え、肩を少し浮かせる。','右ひじと左膝を近づけながら、右脚を前に伸ばす。','反対側も同じように、自転車をこぐように交互に行う。'],
+  mistakes:['ひじだけを動かして体がねじれていない','手で首を引っぱる','速くやりすぎる'],
+  guide:'左右交互で20回 × 3セット'},
+ {id:'ab-crunch-machine',part:'abs',type:'machine',unit:'reps',name:'アブドミナルクランチ',
+  target:'お腹(腹直筋)',
+  steps:['イスの高さを合わせ、パッドを胸に当てる(またはグリップを握る)。','背中を丸めるようにして、お腹を縮める。','1秒止めて、ゆっくり戻す。'],
+  mistakes:['腕の力で引いてしまう','重すぎて反動を使う'],
+  guide:'12〜15回 × 3セット'},
+];
+
+const PRESET_MENUS = [
+  {id:'p-home-glute', name:'🏠 家でお尻の日', ex:['hip-lift','donkey-kick','fire-hydrant','clamshell','wide-squat','single-rdl']},
+  {id:'p-gym-lower',  name:'🏋️ ジムで下半身の日', ex:['hip-thrust-machine','abduction','adduction-machine','lying-leg-curl','cable-kickback']},
+  {id:'p-gym-upper',  name:'🏋️ ジムで上半身の日', ex:['chest-press','pec-fly','lat-pulldown','seated-row','ab-crunch-machine']},
+  {id:'p-home-upper', name:'🏠 家で上半身+お腹の日', ex:['knee-pushup','superman','back-ext','plank','crunch','leg-raise']},
+];
+
+/* ===================== 保存まわり ===================== */
+const KEY = 'kintore-log-v1';
+function emptyDB(){ return {version:1, workouts:{}, customEx:[], menus:[]}; }
+function load(){
+  try{
+    const d = JSON.parse(localStorage.getItem(KEY));
+    if(d && typeof d === 'object' && d.workouts) return Object.assign(emptyDB(), d);
+  }catch(e){}
+  return emptyDB();
+}
+let db = load();
+let lastSaveOk = true;
+function save(){
+  for(const d of Object.keys(db.workouts)){
+    const w = db.workouts[d];
+    if((!w.entries || w.entries.length===0) && !(w.memo||'').trim()) delete db.workouts[d];
+  }
+  try{ localStorage.setItem(KEY, JSON.stringify(db)); lastSaveOk = true; }
+  catch(e){ lastSaveOk = false; toast('保存できませんでした'); }
+}
+
+/* ===================== 小さな道具 ===================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const todayStr = () => ymd(new Date());
+const parseYmd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+const WD = ['日','月','火','水','木','金','土'];
+const fmtDate = s => { const d = parseYmd(s); return (d.getMonth()+1)+'月'+d.getDate()+'日('+WD[d.getDay()]+')'; };
+const fmtShort = s => { const d = parseYmd(s); return (d.getMonth()+1)+'/'+d.getDate(); };
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const allEx = () => EXERCISES.concat(db.customEx);
+const getEx = id => allEx().find(e=>e.id===id);
+const partName = id => (PARTS.find(p=>p.id===id)||{}).name || 'その他';
+const allMenus = () => PRESET_MENUS.concat(db.menus);
+let toastTimer;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),1600); }
+function typeBadge(ex){ return ex.type==='machine' ? '<span class="badge m">マシン</span>' : '<span class="badge">自重</span>'; }
+function unitLabel(ex){ return ex.unit==='sec' ? '秒' : '回'; }
+function wLabel(ex){ return ex.id==='assisted-pullup' ? 'アシストkg' : 'kg'; }
+function setText(ex, s){
+  const u = ex && ex.unit==='sec' ? '秒' : '回';
+  const r = (s.r===''||s.r==null) ? '?' : s.r;
+  return (s.w!==''&&s.w!=null) ? `${s.w}kg×${r}${u}` : `${r}${u}`;
+}
+
+/* ===================== 状態 ===================== */
+let tab = 'record';
+let cur = todayStr();
+let calY = new Date().getFullYear(), calM = new Date().getMonth();
+let exFilter = 'all';
+let pickFilter = 'glute';
+
+function getW(create){
+  if(!db.workouts[cur] && create) db.workouts[cur] = {entries:[], memo:''};
+  return db.workouts[cur] || {entries:[], memo:''};
+}
+function prevRecord(exId){
+  const dates = Object.keys(db.workouts).filter(d=>d<cur).sort().reverse();
+  for(const d of dates){
+    const e = (db.workouts[d].entries||[]).find(x=>x.exId===exId && x.sets.some(s=>s.r!==''||s.w!==''));
+    if(e) return {date:d, sets:e.sets.filter(s=>s.r!==''||s.w!=='')};
+  }
+  return null;
+}
+
+/* ===================== 画面:記録 ===================== */
+function renderRecord(){
+  const w = getW(false);
+  const isToday = cur===todayStr();
+  let h = `<div class="datebar">
+    <button class="btn sm" data-act="prevDay" aria-label="前の日">◀</button>
+    <input type="date" id="dateIn" value="${cur}">
+    <button class="btn sm" data-act="nextDay" aria-label="次の日">▶</button>
+  </div>
+  <div class="row between" style="margin:-4px 0 12px">
+    <div class="muted">${fmtDate(cur)}${isToday?' ・ 今日':''}</div>
+    ${isToday?'':'<button class="btn sm ghost" data-act="goToday">今日にもどる</button>'}
+  </div>`;
+  if(w.entries.length===0){
+    h += `<div class="card empty"><div class="big">🏋️</div>
+      <p style="margin:6px 0 14px">この日の記録はまだありません</p>
+      <button class="btn primary block" data-act="openMenus">お手本メニューから始める</button>
+      <div style="height:8px"></div>
+      <button class="btn block" data-act="openPicker">種目を1つずつ選ぶ</button></div>`;
+  } else {
+    w.entries.forEach((en, i)=>{
+      const ex = getEx(en.exId) || {name:en.name||'(削除した種目)', type:en.type||'bw', unit:en.unit||'reps', id:en.exId};
+      const prev = prevRecord(en.exId);
+      const hasW = ex.type==='machine';
+      h += `<div class="card">
+        <div class="row between">
+          <button class="entry-title" data-act="showEx" data-id="${esc(en.exId)}">${esc(ex.name)}</button>
+          <button class="icon-btn" data-act="delEntry" data-entry="${i}" aria-label="この種目を消す">🗑</button>
+        </div>
+        <div class="prev">${prev ? `前回 <b>${fmtShort(prev.date)}</b>:${prev.sets.map(s=>esc(setText(ex,s))).join(' / ')}` : '前回の記録:なし(はじめての種目)'}</div>
+        <table class="sets"><thead><tr><th></th>${hasW?`<th>${wLabel(ex)}</th>`:''}<th>${unitLabel(ex)}${ex.unit==='sec'?'数':'数'}</th><th></th></tr></thead><tbody>`;
+      en.sets.forEach((s, j)=>{
+        const p = prev && prev.sets[j];
+        h += `<tr><td class="no">${j+1}</td>
+          ${hasW?`<td><input class="num" inputmode="decimal" data-entry="${i}" data-set="${j}" data-field="w" value="${esc(s.w)}" placeholder="${p&&p.w!==''?esc(p.w):'kg'}"></td>`:''}
+          <td><input class="num" inputmode="numeric" data-entry="${i}" data-set="${j}" data-field="r" value="${esc(s.r)}" placeholder="${p&&p.r!==''?esc(p.r):unitLabel(ex)}"></td>
+          <td class="del"><button class="icon-btn" data-act="delSet" data-entry="${i}" data-set="${j}" aria-label="セットを消す">✕</button></td></tr>`;
+      });
+      h += `</tbody></table>
+        <button class="btn sm" style="margin-top:8px" data-act="addSet" data-entry="${i}">+ セットを追加</button>
+      </div>`;
+    });
+    h += `<div class="grid2" style="margin-bottom:12px">
+      <button class="btn" data-act="openPicker">+ 種目を追加</button>
+      <button class="btn" data-act="openMenus">+ メニューから追加</button></div>`;
+  }
+  h += `<div class="card"><div class="sec-title">ひとことメモ</div>
+    <textarea id="memo" placeholder="例:お尻にしっかり効いた / 腰が少し重かった">${esc(w.memo||'')}</textarea>
+    <div class="saved">入力した内容は自動で保存されます</div></div>`;
+  return h;
+}
+
+function addEntry(exId){
+  const ex = getEx(exId); if(!ex) return;
+  const w = getW(true);
+  const prev = prevRecord(exId);
+  const n = prev ? Math.max(1, prev.sets.length) : 3;
+  const sets = []; for(let k=0;k<n;k++) sets.push({w:'', r:''});
+  w.entries.push({exId, name:ex.name, type:ex.type, unit:ex.unit, sets});
+  save();
+}
+
+/* ===================== 画面:種目・やり方 ===================== */
+function renderExercises(){
+  let h = `<div class="chips">
+    <button class="chip ${exFilter==='all'?'on':''}" data-act="exFilter" data-f="all">すべて</button>
+    ${PARTS.map(p=>`<button class="chip ${exFilter===p.id?'on':''}" data-act="exFilter" data-f="${p.id}">${p.emoji} ${p.name}</button>`).join('')}
+  </div>`;
+  const parts = exFilter==='all' ? PARTS : PARTS.filter(p=>p.id===exFilter);
+  parts.forEach(p=>{
+    const list = allEx().filter(e=>e.part===p.id);
+    if(!list.length) return;
+    h += `<div class="part-head">${p.emoji} ${p.name}</div>`;
+    ['bw','machine'].forEach(t=>{
+      list.filter(e=>e.type===t).forEach(e=>{
+        h += `<button class="list-item" data-act="showEx" data-id="${esc(e.id)}"><span class="name">${esc(e.name)}${e.custom?' <span class="muted small">(自分で追加)</span>':''}</span>${typeBadge(e)}</button>`;
+      });
+    });
+  });
+  h += `<div style="height:8px"></div><button class="btn block" data-act="newEx">+ 自分の種目を追加</button>
+  <div class="note">⚠️ 痛みを感じたら、すぐに中止してください。持病やケガがある方、体調に不安がある方は、医師に相談してから行いましょう。</div>`;
+  return h;
+}
+
+function exDetailHtml(ex){
+  const yt = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(ex.name + ' やり方');
+  let h = `<div class="grab"></div><div class="sheet-head"><div><h2>${esc(ex.name)}</h2>
+    <div class="row" style="flex-wrap:wrap">${typeBadge(ex)}<span class="badge">${esc(partName(ex.part))}</span></div></div>
+    <button class="icon-btn" data-act="closeSheet" aria-label="閉じる">✕</button></div>`;
+  if(ex.custom){
+    h += `<p class="muted">自分で追加した種目です。やり方は動画で確認しましょう。</p>`;
+  } else {
+    h += `<h3>🎯 効く場所</h3><div>${esc(ex.target)}</div>
+      <h3>📋 やり方</h3><ol>${ex.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+      <h3>⚠️ よくある間違い</h3><ul>${ex.mistakes.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
+      <h3>🔢 回数の目安(初心者)</h3><div>${esc(ex.guide)}</div>`;
+    if(ex.tip) h += `<div class="note">💡 ${esc(ex.tip)}</div>`;
+    if(ex.type==='machine') h += `<div class="note">🏋️ マシンはジムによって形が少しちがいます。使い方が分からないときは、ジムのスタッフに聞きましょう。重さは「正しいフォームで最後まで丁寧にできる重さ」から始めます。</div>`;
+  }
+  h += `<a class="yt" href="${yt}" target="_blank" rel="noopener">▶ YouTubeでやり方の動画を探す</a>
+    <div style="height:10px"></div>
+    <button class="btn primary block" data-act="addFromDetail" data-id="${esc(ex.id)}">${fmtDate(cur)}の記録に追加</button>`;
+  return h;
+}
+
+/* ===================== 画面:履歴 ===================== */
+function renderHistory(){
+  const first = new Date(calY, calM, 1);
+  const days = new Date(calY, calM+1, 0).getDate();
+  const today = todayStr();
+  let h = `<div class="card"><div class="cal-head">
+    <button class="btn sm" data-act="calPrev" aria-label="前の月">◀</button>
+    <b>${calY}年 ${calM+1}月</b>
+    <button class="btn sm" data-act="calNext" aria-label="次の月">▶</button></div>
+    <div class="cal">${WD.map((w,i)=>`<div class="wd ${i===0?'sun':i===6?'sat':''}">${w}</div>`).join('')}`;
+  for(let i=0;i<first.getDay();i++) h += '<div></div>';
+  let monthCount = 0;
+  for(let d=1; d<=days; d++){
+    const ds = calY+'-'+pad(calM+1)+'-'+pad(d);
+    const done = !!db.workouts[ds];
+    if(done) monthCount++;
+    h += `<button class="${done?'done':''} ${ds===today?'today':''}" data-act="openDay" data-date="${ds}">${d}</button>`;
+  }
+  const total = Object.keys(db.workouts).length;
+  h += `</div><div class="stat"><div><b>${monthCount}</b><span class="muted small">この月にやった日</span></div>
+    <div><b>${total}</b><span class="muted small">これまでの合計</span></div></div>
+    <div class="muted small" style="margin-top:8px">日付をタップすると、その日の記録を見たり直したりできます</div></div>`;
+  const dates = Object.keys(db.workouts).sort().reverse().slice(0, 40);
+  h += `<div class="sec-title" style="margin-top:18px">これまでの記録</div>`;
+  if(!dates.length) h += `<div class="card empty muted">まだ記録がありません。<br>「記録」タブから始めましょう!</div>`;
+  dates.forEach(d=>{
+    const w = db.workouts[d];
+    const names = (w.entries||[]).map(e=>{ const ex=getEx(e.exId); return ex?ex.name:(e.name||'?'); });
+    h += `<button class="hist-item" data-act="openDay" data-date="${d}">
+      <div class="row between"><span class="d">${fmtDate(d)}</span><span class="muted small">${names.length}種目</span></div>
+      <div class="muted small">${esc(names.join('・'))}</div>
+      ${w.memo?`<div class="small" style="margin-top:4px">📝 ${esc(w.memo.length>40?w.memo.slice(0,40)+'…':w.memo)}</div>`:''}
+    </button>`;
+  });
+  return h;
+}
+
+/* ===================== 画面:設定 ===================== */
+function renderSettings(){
+  let h = `<div class="card"><div class="sec-title">📋 マイメニュー</div>
+    <div class="muted small" style="margin-bottom:10px">よくやる種目の組み合わせを保存できます</div>`;
+  if(!db.menus.length) h += `<div class="muted small" style="margin-bottom:10px">まだありません</div>`;
+  db.menus.forEach(m=>{
+    h += `<div class="list-item"><span class="name">${esc(m.name)}<br><span class="muted small">${m.ex.length}種目</span></span>
+      <button class="btn sm danger" data-act="delMenu" data-id="${esc(m.id)}">削除</button></div>`;
+  });
+  h += `<button class="btn block" data-act="newMenu">+ マイメニューを作る</button></div>`;
+
+  h += `<div class="card"><div class="sec-title">➕ 自分で追加した種目</div>`;
+  if(!db.customEx.length) h += `<div class="muted small" style="margin-bottom:10px">まだありません</div>`;
+  db.customEx.forEach(e=>{
+    h += `<div class="list-item"><span class="name">${esc(e.name)}<br><span class="muted small">${esc(partName(e.part))}・${e.type==='machine'?'マシン':'自重'}</span></span>
+      <button class="btn sm danger" data-act="delCustomEx" data-id="${esc(e.id)}">削除</button></div>`;
+  });
+  h += `<button class="btn block" data-act="newEx">+ 自分の種目を追加</button></div>`;
+
+  h += `<div class="card"><div class="sec-title">💾 バックアップ</div>
+    <div class="muted small" style="margin-bottom:10px">記録はこのiPhoneの中だけに保存されています。月に1回くらい「保存」しておくと、機種変更やアプリを消したときも元に戻せます。保存先は「ファイル」アプリ(iCloud Drive)がおすすめです。</div>
+    <button class="btn primary block" data-act="backupSave">バックアップを保存</button>
+    <div style="height:8px"></div>
+    <button class="btn block" data-act="backupLoad">バックアップを読み込む</button>
+    <div class="muted small" style="margin-top:8px">記録している日数:${Object.keys(db.workouts).length}日</div></div>`;
+
+  h += `<div class="card"><div class="sec-title">📱 ホーム画面に追加する方法</div>
+    <ol class="small" style="margin:0;padding-left:1.3em">
+      <li>このページを <b>Safari</b> で開く</li>
+      <li>画面下の <b>共有ボタン</b>(四角から矢印が出ているマーク)をタップ</li>
+      <li><b>「ホーム画面に追加」</b>をタップ</li>
+      <li>右上の<b>「追加」</b>をタップ</li></ol>
+    <div class="muted small" style="margin-top:6px">以後はホーム画面の「筋トレログ」アイコンから開いてください。</div></div>
+  <div class="note">⚠️ このアプリの説明は一般的な内容です。痛みを感じたらすぐに中止し、持病やケガがある方は医師に相談してください。</div>`;
+  return h;
+}
+
+/* ===================== 下から出る画面(シート) ===================== */
+function openSheet(html){ $('#sheet').innerHTML = html; $('#sheetWrap').classList.add('open'); $('#sheet').scrollTop = 0; document.body.style.overflow='hidden'; }
+function closeSheet(){ $('#sheetWrap').classList.remove('open'); document.body.style.overflow=''; }
+
+function pickerHtml(){
+  const used = new Set(getW(false).entries.map(e=>e.exId));
+  let h = `<div class="grab"></div><div class="sheet-head"><h2>種目を選ぶ</h2><button class="icon-btn" data-act="closeSheet" aria-label="閉じる">✕</button></div>
+  <div class="chips" style="margin-top:8px">${PARTS.map(p=>`<button class="chip ${pickFilter===p.id?'on':''}" data-act="pickFilter" data-f="${p.id}">${p.emoji} ${p.name}</button>`).join('')}</div>`;
+  ['bw','machine'].forEach(t=>{
+    const list = allEx().filter(e=>e.part===pickFilter && e.type===t);
+    if(!list.length) return;
+    h += `<div class="part-head" style="margin-top:6px">${t==='bw'?'自重(道具なし)':'マシン'}</div>`;
+    list.forEach(e=>{
+      h += `<button class="list-item" data-act="pickEx" data-id="${esc(e.id)}"><span class="name">${esc(e.name)}</span>${used.has(e.id)?'<span class="badge">追加ずみ</span>':'<span class="badge m">+ 追加</span>'}</button>`;
+    });
+  });
+  return h;
+}
+function menusHtml(){
+  let h = `<div class="grab"></div><div class="sheet-head"><h2>メニューを選ぶ</h2><button class="icon-btn" data-act="closeSheet" aria-label="閉じる">✕</button></div>
+  <div class="muted small" style="margin-bottom:10px">タップすると、メニューの種目がまとめて記録に並びます</div>`;
+  allMenus().forEach(m=>{
+    const names = m.ex.map(id=>{const e=getEx(id);return e?e.name:null;}).filter(Boolean);
+    h += `<button class="list-item" data-act="startMenu" data-id="${esc(m.id)}" style="display:block">
+      <div style="font-weight:800">${esc(m.name)}</div><div class="muted small">${esc(names.join('・'))}</div></button>`;
+  });
+  h += `<div class="muted small">自分のメニューは「設定」タブで作れます</div>`;
+  return h;
+}
+function newMenuHtml(){
+  let h = `<div class="grab"></div><div class="sheet-head"><h2>マイメニューを作る</h2><button class="icon-btn" data-act="closeSheet" aria-label="閉じる">✕</button></div>
+  <h3>メニューの名前</h3><input type="text" id="menuName" placeholder="例:月曜のお尻メニュー" maxlength="30">
+  <h3>入れる種目(タップでチェック)</h3>`;
+  PARTS.forEach(p=>{
+    const list = allEx().filter(e=>e.part===p.id);
+    if(!list.length) return;
+    h += `<div class="part-head" style="margin-top:10px">${p.emoji} ${p.name}</div>`;
+    list.forEach(e=>{ h += `<label class="check-item"><input type="checkbox" class="menuChk" value="${esc(e.id)}"><span style="flex:1">${esc(e.name)}</span>${typeBadge(e)}</label>`; });
+  });
+  h += `<div style="height:14px"></div><button class="btn primary block" data-act="saveMenu">このメニューを保存</button>`;
+  return h;
+}
+function newExHtml(){
+  return `<div class="grab"></div><div class="sheet-head"><h2>自分の種目を追加</h2><button class="icon-btn" data-act="closeSheet" aria-label="閉じる">✕</button></div>
+  <h3>種目の名前</h3><input type="text" id="exName" placeholder="例:ブルガリアンスクワット" maxlength="30">
+  <h3>どこに効く?</h3><select id="exPart">${PARTS.map(p=>`<option value="${p.id}">${p.emoji} ${p.name}</option>`).join('')}</select>
+  <h3>種類</h3><select id="exType"><option value="bw">自重(重さを記録しない)</option><option value="machine">マシン(重さkgも記録する)</option></select>
+  <h3>記録のしかた</h3><select id="exUnit"><option value="reps">回数</option><option value="sec">秒数(プランクのように止まる種目)</option></select>
+  <div style="height:16px"></div><button class="btn primary block" data-act="saveEx">追加する</button>`;
+}
+
+/* ===================== 描画 ===================== */
+function render(){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+  const m = $('#main');
+  if(tab==='record') m.innerHTML = renderRecord();
+  else if(tab==='exercises') m.innerHTML = renderExercises();
+  else if(tab==='history') m.innerHTML = renderHistory();
+  else m.innerHTML = renderSettings();
+}
+function shiftDay(n){ const d = parseYmd(cur); d.setDate(d.getDate()+n); cur = ymd(d); render(); }
+
+/* ===================== ボタンの動き ===================== */
+const ACT = {
+  tab(t){ tab = t.dataset.tab; if(tab==='history'){ const d=parseYmd(cur); calY=d.getFullYear(); calM=d.getMonth(); } render(); window.scrollTo(0,0); },
+  prevDay(){ shiftDay(-1); }, nextDay(){ shiftDay(1); },
+  goToday(){ cur = todayStr(); render(); },
+  openMenus(){ openSheet(menusHtml()); },
+  openPicker(){ openSheet(pickerHtml()); },
+  pickFilter(t){ pickFilter = t.dataset.f; openSheet(pickerHtml()); },
+  pickEx(t){
+    if(getW(false).entries.some(e=>e.exId===t.dataset.id)){ toast('もう追加されています'); return; }
+    addEntry(t.dataset.id); toast('追加しました'); const st=$('#sheet').scrollTop; openSheet(pickerHtml()); $('#sheet').scrollTop=st; render();
+  },
+  startMenu(t){
+    const m = allMenus().find(x=>x.id===t.dataset.id); if(!m) return;
+    const have = new Set(getW(false).entries.map(e=>e.exId));
+    let n=0; m.ex.forEach(id=>{ if(!have.has(id) && getEx(id)){ addEntry(id); n++; } });
+    closeSheet(); tab='record'; render(); toast(n?`${n}種目を追加しました`:'すべて追加ずみです');
+  },
+  addSet(t){
+    const en = getW(true).entries[+t.dataset.entry]; if(!en) return;
+    const last = en.sets[en.sets.length-1];
+    en.sets.push(last ? {w:last.w, r:last.r} : {w:'', r:''});
+    save(); render();
+  },
+  delSet(t){
+    const en = getW(true).entries[+t.dataset.entry]; if(!en) return;
+    if(en.sets.length<=1){ toast('最後の1セットは消せません'); return; }
+    en.sets.splice(+t.dataset.set, 1); save(); render();
+  },
+  delEntry(t){
+    const w = getW(true); const en = w.entries[+t.dataset.entry]; if(!en) return;
+    if(!confirm(`「${en.name}」をこの日の記録から消しますか?`)) return;
+    w.entries.splice(+t.dataset.entry, 1); save(); render();
+  },
+  showEx(t){ const ex = getEx(t.dataset.id); if(ex) openSheet(exDetailHtml(ex)); else toast('この種目は削除されています'); },
+  addFromDetail(t){
+    if(getW(false).entries.some(e=>e.exId===t.dataset.id)){ toast('もう追加されています'); return; }
+    addEntry(t.dataset.id); closeSheet(); tab='record'; render(); toast('記録に追加しました');
+  },
+  exFilter(t){ exFilter = t.dataset.f; render(); },
+  calPrev(){ calM--; if(calM<0){calM=11;calY--;} render(); },
+  calNext(){ calM++; if(calM>11){calM=0;calY++;} render(); },
+  openDay(t){ cur = t.dataset.date; tab='record'; render(); window.scrollTo(0,0); },
+  newMenu(){ openSheet(newMenuHtml()); },
+  saveMenu(){
+    const name = $('#menuName').value.trim();
+    const ex = [...document.querySelectorAll('.menuChk:checked')].map(c=>c.value);
+    if(!name){ toast('名前を入れてください'); return; }
+    if(!ex.length){ toast('種目を1つ以上選んでください'); return; }
+    db.menus.push({id:'m-'+uid(), name, ex}); save(); closeSheet(); render(); toast('メニューを保存しました');
+  },
+  delMenu(t){
+    const m = db.menus.find(x=>x.id===t.dataset.id); if(!m) return;
+    if(!confirm(`マイメニュー「${m.name}」を削除しますか?(記録は消えません)`)) return;
+    db.menus = db.menus.filter(x=>x.id!==m.id); save(); render();
+  },
+  newEx(){ openSheet(newExHtml()); },
+  saveEx(){
+    const name = $('#exName').value.trim();
+    if(!name){ toast('名前を入れてください'); return; }
+    if(allEx().some(e=>e.name===name)){ toast('同じ名前の種目があります'); return; }
+    db.customEx.push({id:'c-'+uid(), name, part:$('#exPart').value, type:$('#exType').value, unit:$('#exUnit').value, custom:true});
+    save(); closeSheet(); render(); toast('種目を追加しました');
+  },
+  delCustomEx(t){
+    const e = db.customEx.find(x=>x.id===t.dataset.id); if(!e) return;
+    if(!confirm(`種目「${e.name}」を削除しますか?(これまでの記録は残ります)`)) return;
+    db.customEx = db.customEx.filter(x=>x.id!==e.id);
+    db.menus.forEach(m=>{ m.ex = m.ex.filter(id=>id!==e.id); });
+    save(); render();
+  },
+  async backupSave(){
+    const json = JSON.stringify(db, null, 1);
+    const name = 'kintore-log-backup-' + todayStr().replace(/-/g,'') + '.json';
+    try{
+      const file = new File([json], name, {type:'application/json'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:'筋トレログのバックアップ'});
+        return;
+      }
+    }catch(e){ if(e && e.name==='AbortError') return; }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([json], {type:'application/json'}));
+    a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    toast('バックアップを保存しました');
+  },
+  backupLoad(){ $('#fileIn').value=''; $('#fileIn').click(); },
+  closeSheet(){ closeSheet(); },
+};
+
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-act]');
+  if(!t) return;
+  const f = ACT[t.dataset.act];
+  if(f){ e.preventDefault(); f(t, e); }
+});
+document.addEventListener('input', e=>{
+  const t = e.target;
+  if(t.dataset && t.dataset.field){
+    const en = getW(true).entries[+t.dataset.entry]; if(!en) return;
+    const s = en.sets[+t.dataset.set]; if(!s) return;
+    s[t.dataset.field] = t.value.replace(/[^0-9.]/g,'');
+    if(t.value!==s[t.dataset.field]) t.value = s[t.dataset.field];
+    save();
+  } else if(t.id==='memo'){
+    getW(true).memo = t.value; save();
+  }
+});
+document.addEventListener('change', e=>{
+  if(e.target.id==='dateIn' && e.target.value){ cur = e.target.value; render(); }
+});
+$('#fileIn').addEventListener('change', async e=>{
+  const f = e.target.files && e.target.files[0]; if(!f) return;
+  try{
+    const d = JSON.parse(await f.text());
+    if(!d || typeof d!=='object' || !d.workouts) throw new Error('bad');
+    const n = Object.keys(d.workouts).length;
+    if(!confirm(`バックアップ(${n}日分の記録)を読み込みます。\n今アプリに入っている記録は、読み込んだ内容に置き換わります。よろしいですか?`)) return;
+    db = Object.assign(emptyDB(), d); save(); render(); toast('読み込みました');
+  }catch(err){ alert('このファイルは読み込めませんでした。筋トレログのバックアップファイルを選んでください。'); }
+});
+
+render();
+
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
